@@ -1,0 +1,27 @@
+name: routing
+topology:
+  nodes:
+    internet:
+      kind: linux
+      image: routing
+      network-mode: none
+      binds:
+        - ./internet.sh:/run.sh
+      cmd: bash /run.sh
+    router:
+      kind: linux
+      image: routing
+      network-mode: none
+      binds:
+        - ./router.sh:/run.sh
+      cmd: bash /run.sh
+    client:
+      kind: linux
+      image: routing
+      network-mode: none
+      binds:
+        - ./client.sh:/run.sh
+      cmd: bash /run.sh
+  links:
+    - endpoints: ["internet:eth0","router:eth0"]
+    - endpoints: ["router:eth1","client:eth0"]
