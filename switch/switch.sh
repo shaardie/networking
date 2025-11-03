@@ -19,18 +19,14 @@ done
 # Create bridge
 ip link add name br0 type bridge
 
-# Ports hinzufügen
+# Add Ports to bridge
 ip link set eth0 master br0
 ip link set eth1 master br0
 ip link set eth2 master br0
 ip link set eth3 master br0
 
-# Bridge aktivieren
+# Activate bridge
 ip link set br0 up
-# sudo ip link set eth0 up
-# sudo ip link set eth1 up
-# sudo ip link set eth1 up
-# sudo ip link set eth1 up
 
 # Keep container running
 sleep infinity
