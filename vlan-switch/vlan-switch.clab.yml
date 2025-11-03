@@ -1,0 +1,43 @@
+name: vlan-switch
+topology:
+  nodes:
+    node1:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./node1.sh:/run.sh
+      cmd: bash /run.sh
+    node2:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./node2.sh:/run.sh
+      cmd: bash /run.sh
+    node3:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./node3.sh:/run.sh
+      cmd: bash /run.sh
+    node4:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./node4.sh:/run.sh
+      cmd: bash /run.sh
+    switch:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./switch.sh:/run.sh
+      cmd: bash /run.sh
+  links:
+    - endpoints: ["switch:eth0","node1:eth0"]
+    - endpoints: ["switch:eth1","node2:eth0"]
+    - endpoints: ["switch:eth2","node3:eth0"]
+    - endpoints: ["switch:eth3","node4:eth0"]
