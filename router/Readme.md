@@ -1,11 +1,11 @@
 # Router
 
 ```bash
-❯ docker exec -it clab-routing-node1 ip route
+❯ docker exec -it clab-router-node1 ip route
 192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.2
 192.168.2.0/24 via 192.168.1.1 dev eth0
 
-❯ docker exec -it clab-routing-router ip addr show
+❯ docker exec -it clab-router-router ip addr show
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -25,14 +25,14 @@
     inet6 fe80::a8c1:abff:fe5e:d141/64 scope link proto kernel_ll
        valid_lft forever preferred_lft forever
 
-❯ docker exec -it clab-routing-node1 ping 192.168.2.2 -c 1
+❯ docker exec -it clab-router-node1 ping 192.168.2.2 -c 1
 PING 192.168.2.2 (192.168.2.2): 56 data bytes
 64 bytes from 192.168.2.2: icmp_seq=0 ttl=63 time=0.168 ms
 --- 192.168.2.2 ping statistics ---
 1 packets transmitted, 1 packets received, 0% packet loss
 round-trip min/avg/max/stddev = 0.168/0.168/0.168/0.000 ms
 
-❯ docker exec -it clab-routing-router tcpdump -i any -e not ip6
+❯ docker exec -it clab-router-router tcpdump -i any -e not ip6
 tcpdump: WARNING: any: That device doesn't support promiscuous mode
 (Promiscuous mode not supported on the "any" device)
 tcpdump: verbose output suppressed, use -v[v]... for full protocol decode

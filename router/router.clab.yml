@@ -1,4 +1,4 @@
-name: routing
+name: router
 topology:
   nodes:
     node1:
