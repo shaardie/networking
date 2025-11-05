@@ -1,0 +1,18 @@
+name: internet-router
+topology:
+  nodes:
+    node1:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./node1.sh:/run.sh
+      cmd: bash /run.sh
+    router:
+      kind: linux
+      image: networking
+      binds:
+        - ./router.sh:/run.sh
+      cmd: bash /run.sh
+  links:
+    - endpoints: ["router:eth1","node1:eth0"]
