@@ -1,12 +1,19 @@
 name: routing
 topology:
   nodes:
-    internet:
+    node1:
       kind: linux
       image: networking
       network-mode: none
       binds:
-        - ./internet.sh:/run.sh
+        - ./node1.sh:/run.sh
+      cmd: bash /run.sh
+    node2:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./node2.sh:/run.sh
       cmd: bash /run.sh
     router:
       kind: linux
@@ -15,13 +22,6 @@ topology:
       binds:
         - ./router.sh:/run.sh
       cmd: bash /run.sh
-    client:
-      kind: linux
-      image: networking
-      network-mode: none
-      binds:
-        - ./client.sh:/run.sh
-      cmd: bash /run.sh
   links:
-    - endpoints: ["internet:eth0","router:eth0"]
-    - endpoints: ["router:eth1","client:eth0"]
+    - endpoints: ["router:eth0","node1:eth0"]
+    - endpoints: ["router:eth1","node2:eth0"]
