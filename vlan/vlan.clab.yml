@@ -1,0 +1,19 @@
+name: vlan
+topology:
+  nodes:
+    node1:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./node1.sh:/run.sh
+      cmd: bash /run.sh
+    node2:
+      kind: linux
+      image: networking
+      network-mode: none
+      binds:
+        - ./node2.sh:/run.sh
+      cmd: bash /run.sh
+  links:
+    - endpoints: ["node1:eth0","node2:eth0"]
