@@ -1,5 +1,25 @@
 # Direct Connection
 
+It does not really get more basic than a direct connection between to machines.
+So this is our starting point.
+I will also use it to explain how the general structure is and what tools we use to analyse the networks, so despite the backround knowledge, this is part is a good starting point even if you are already familiar with most of the networking stuff.
+
+## Tooling
+
+Base of all our different setups if [CONTAINERlab](https://containerlab.dev/).
+It lets you create quite complex networking structures without any physical hardware or cables.
+We are using it on top of [Docker](https://www.docker.com/) to create a bunch of different containers between which we can define network connections.
+The configuration is done via a [YAML](https://yaml.org/) file and is pretty similar to [Docker Compose](https://docs.docker.com/compose/).
+I will not go into details about the configuration, but explain the ideas of the different setups.
+CONTAINERlab can do many things more and you can spin up complex environment even with different network operating systems, so if you want to know more about that, check it our yourself.
+
+Next to CONTAINERlab we are pretty much only using bash scripts and basic linux networking tools to create our setups.
+I mean, this is more or less the whole idea of this thing.
+
+There are some networking tools, we will use quite often which are not part of the setup itself, but helps us analyse and *see* what is happening in the network, like [tcpdump](https://www.tcpdump.org/), which can be use to acutally look at the network traffic.
+It is a very powerfull tool and we will familiarize ourself with some, but not all, of its functionality along the way.
+
+
 ```bash
 ❯ docker exec clab-direct-connection-node1 ip address show dev eth0
 28: eth0@if27: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 qdisc noqueue state UP group default
