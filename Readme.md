@@ -10,7 +10,7 @@ I decided to use simple [Debian](https://www.debian.org/) containers as a base, 
 
 This repository is aimed at people who already have some experience with Linux and containers, and who might have learned the basics of networking at some point. 
 
-The goal here is not to teach Linux or container fundamentals, but to provide **practical examples** that help you understand common networking structures in a hands-on way.
+The goal here is not to teach Linux or container fundamentals, but to provide **practical setups** that help you understand common networking structures in a hands-on way.
 
 ## Tooling
 
@@ -24,42 +24,22 @@ CONTAINERlab can do many things more and you can spin up complex environment eve
 Next to CONTAINERlab we are pretty much only using bash scripts and basic linux networking tools to create our setups.
 I mean, this is more or less the whole idea of this thing.
 
+We are also using our own Container Image, but this is just to speed things a little bit up.
+It is still the base image of Debian Trixie, but with some additional tools installed, like the one mentioned below and some other commands which are usually installed in the regular Debian Trixie, but just only not part of the minimal container image.
+You can see the actuall Dockerfile [here](./Dockerfile).
+
 There are some networking tools, we will use quite often which are not part of the setup itself, but helps us analyse and *see* what is happening in the network, like [tcpdump](https://www.tcpdump.org/), which can be use to acutally look at the network traffic.
 It is a very powerfull tool and we will familiarize ourself with some, but not all, of its functionality along the way.
 
+Despite that sometimes use [ipcalc](https://jodies.de/ipcalc) to analyse ip addreses and networks.
 
-```bash
-❯ docker exec clab-direct-connection-node1 ip address show dev eth0
-28: eth0@if27: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 qdisc noqueue state UP group default
-    link/ether aa:c1:ab:83:48:2a brd ff:ff:ff:ff:ff:ff link-netnsid 1
-    inet 192.168.1.1/24 scope global eth0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::a8c1:abff:fe83:482a/64 scope link proto kernel_ll
-       valid_lft forever preferred_lft forever
+## Setups
 
-❯ docker exec clab-direct-connection-node1 ping -c 1 192.168.1.2
-PING 192.168.1.2 (192.168.1.2): 56 data bytes
-64 bytes from 192.168.1.2: icmp_seq=0 ttl=64 time=0.087 ms
---- 192.168.1.2 ping statistics ---
-1 packets transmitted, 1 packets received, 0% packet loss
-round-trip min/avg/max/stddev = 0.087/0.087/0.087/0.000 ms
+So now to the actual content: 
 
-❯ docker exec clab-direct-connection-node1 ip neigh
-192.168.1.2 dev eth0 lladdr aa:c1:ab:af:62:4c STAL
-
-❯ docker exec -it clab-direct-connection-node1 tcpdump -i eth0
-tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
-listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-20:56:05.148583 ARP, Request who-has 192.168.1.2 tell 192.168.1.1, length 28
-20:56:05.148606 ARP, Reply 192.168.1.2 is-at aa:c1:ab:af:62:4c (oui Unknown), length 28
-20:56:05.148610 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 18, seq 0, length 64
-20:56:05.148625 IP 192.168.1.2 > 192.168.1.1: ICMP echo reply, id 18, seq 0, length 64
-
-❯ docker exec -it clab-direct-connection-node2 tcpdump -i eth0
-tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
-listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-20:56:05.148587 ARP, Request who-has 192.168.1.2 tell 192.168.1.1, length 28
-20:56:05.148605 ARP, Reply 192.168.1.2 is-at aa:c1:ab:af:62:4c (oui Unknown), length 28
-20:56:05.148611 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 18, seq 0, length 64
-20:56:05.148624 IP 192.168.1.2 > 192.168.1.1: ICMP echo reply, id 18, seq 0, length 64
-```
+* [Direct Connection](/direct-connection/Readme.md): The simplest of the setups. Just a direct connection between not nodes.
+* [Switch](/switch/Readme.md): Connecting different nodes with a switch.
+* [VLAN](/vlan/Readme.md): Direct connection between 2 nodes via VLAN.
+* [VLAN Switch](/vlan-switch/Readme.md): Connection between different nodes in different VLANs.
+* [Router](/router/Readme.md): A Router to route the traffic of different nodes in different networks.
+* [Internet Router](/internet-router/Readme.md): The Setup of an internet router, like the one you have at home.
