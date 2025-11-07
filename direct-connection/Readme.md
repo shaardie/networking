@@ -1,7 +1,28 @@
 # Direct Connection
 
-It does not really get more basic than a direct connection between to machines.
+It does not really get more basic than a direct connection between two machines.
 So this is our starting point.
+
+## Setup
+
+This setup consists of two nodes (node1 and node2) connected directly via a single network link.
+Each node has an IP address in the same subnet (192.168.1.0/24):
+- node1: 192.168.1.1/24
+- node2: 192.168.1.2/24
+
+## What you will learn
+
+This basic setup demonstrates fundamental networking concepts:
+
+* **IP Addressing**: How to configure IP addresses on network interfaces
+* **Direct Connectivity**: Communication between two hosts on the same network without any intermediary devices
+* **ARP (Address Resolution Protocol)**: How hosts discover the MAC address associated with an IP address
+* **ICMP (Ping)**: Testing network connectivity using echo request/reply messages
+* **Network Traffic Analysis**: Using tcpdump to observe packets on the network
+
+## Running the setup
+
+After starting the setup with containerlab, you can explore the network as shown below.
 
 ```bash
 ❯ docker exec clab-direct-connection-node1 ip address show dev eth0
