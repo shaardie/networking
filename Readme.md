@@ -33,6 +33,62 @@ It is a very powerfull tool and we will familiarize ourself with some, but not a
 
 Despite that sometimes use [ipcalc](https://jodies.de/ipcalc) to analyse ip addreses and networks.
 
+## Networking Basics
+
+Before we dive into the different setups, we need to talks a little bit about the basics of networking.
+
+So if we talk about networking we want connect multiple computer or devices together so that they can share information.
+How this information is shared between different computes, we also often say nodes, it the [OSI Model](https://en.wikipedia.org/wiki/OSI_model).
+
+Since they are a lot of different technologies and protocols involved during the communication, it is quite difficult to always think about all those at once.
+So the OSI Model splits them up in different Layers, so you can concentrate on just one or two of them and dont worry about the others.
+For example, if you setup your home network, you worry about *connecting* to some nodes in the internet, but not about the protocols you later talk over this connection.
+I will not go into more details about the OSI Model and I also guess most of you have already heard about it.
+Otherwise read about it, if your want.
+
+We will concentrate here about the first three Layers, called the *physical layer*, the *data link layer* and the *network layer*.
+So I explain them very shortly.
+
+The *physical layer* or *layer 1* is responsibly for the actuall transmission and reception of the raw data.
+Think for example about the hardware of your network.
+We will not really talk about this that much, but we will describe the *physical* connections between our nodes, so I needed talk at least mentioned this.
+
+The *data link layer* or *layer 2* is responsible for the communication between nodes or described a little different in the same *local network*.
+For this, you can think about it as the encoded packages or data frames send directly between nodes over the physical layer.
+Most of the time connection point in *layer 2* is a *interface* within your Linux operating system.
+Something like `eth0` or `wlan0`.
+But there are also special interface, which does not follow this rule like `lo` and maybe we will talk about this later in more detail.
+Anyway, each of this interfaces does have an MAC address, which is the unique identifier of this interface.
+They consist of 48 Bits and are nearly always represented by 12 hexadecimal number with each Bytes is seperated by a `:` (or similar), like this:
+
+```
+3b:a9:15:b5:a2:ef
+```
+
+So if we later take a look at communication between to nodes, we look at communication between two of those addresses.
+
+The *network layer* or *layer 3* is responsible for communication between different networks.
+So while layer 2 would be sufficient for the communication in a local network, layer 3 now adds the functionality to talk to nodes in other networks, behond other things.
+
+At this layer, nodes are identified by *IP addresses* instead of MAC addresses.
+These IP addresses are assigned to interfaces in your operating system and can be configured or changed at any time.
+
+We have to different kind of IP addresses, `IPv4` and `IPv6`.
+For the beginning we will only concentrate on `IPv4`, but I am sure we will talk about `IPv6` later on.
+
+IPv4 addresses consist of 32 Bits and are nearly always represented as four number between 0 and 255 delimited by a dot, like this:
+
+```
+192.168.1.1
+```
+
+But the address alone if not sufficient to describe the networks, because to split the whole address space into different networks, we need to know how big these networks are.
+
+For this we are using *netmask*, which describe how many IPv4 addresses are part of a network. There are 2 often used ways to do this. The first more often used one is via a *CIDR Prefix Length
+
+TODO! Finish this
+
+
 ## Setups
 
 So now to the actual content: 
