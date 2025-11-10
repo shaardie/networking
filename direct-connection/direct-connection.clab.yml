@@ -1,19 +1,28 @@
 name: direct-connection
 topology:
   nodes:
+    # Description of the first node
     node1:
       kind: linux
-      image: networking
+      # Image to use
+      image: ghcr.io/shaardie/networking:latest
       network-mode: none
+      # Mount setup script into the container
       binds:
         - ./node1.sh:/run.sh
+      # Run script on startup
       cmd: bash /run.sh
+    # Description of the first node
     node2:
       kind: linux
-      image: networking
+      # Image to use
+      image: ghcr.io/shaardie/networking:latest
       network-mode: none
+      # Mount setup script into the container
       binds:
         - ./node2.sh:/run.sh
+      # Run script on startup
       cmd: bash /run.sh
   links:
+    # Description of the network connections
     - endpoints: ["node1:eth0","node2:eth0"]
