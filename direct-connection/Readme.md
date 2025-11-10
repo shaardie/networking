@@ -89,7 +89,7 @@ ip addr add 192.168.1.2/24 dev eth0
 sleep infinity
 ```
 
-We can see, that both of them pretty much so the same.
+We can see, that both of them pretty much do the same.
 At the beginning, we wait for the network interfaces to become present, because this can take some time and we want to have the setup ready before we start to configure.
 
 After that we are using the `ip` command to configure our interfaces.
@@ -167,7 +167,7 @@ I will limit the output by using `dev eth0` (only showing the configuration of t
 
 There are still a lot of information in this output, we currently do not need, so I will briefly describe them:
 
-* `eth0@if15`: This is the *name* of the interface. The `@if15` is there due to the virtualization we are using the set this up. I will always refer to it as `eth0` and you can ignore it for now.
+* `eth0@if15`: This is the *name* of the interface. The `@if15` is there due to the virtualization we are using to set this up. I will always refer to it as `eth0` and you can ignore it for now.
 * `state UP`: This is the *state* of the interface, it will only accept packages, if it is `UP`.
 * `inet 192.168.1.1/24`: This is an *IPv4 address with netmask* attached to this interface. We can see that our configuration script has done what it was supposed to be.
 * `link/ether aa:c1:ab:4d:39:a7 `: This is the *MAC address* of the interface.
@@ -176,11 +176,11 @@ Okay, so now we have in theory a connection between the two nodes, how can we te
 
 For this, we are using [`ping`](https://en.wikipedia.org/wiki/Ping_(networking_utility)) and [`tcpdump`](https://www.tcpdump.org/).
 
-`ping` lets you send and receive small `ICMP` pakets. `ICMP` is another layer 3 protocol, so we can test with that, if we have a layer 3 connection and therefore also a layer 2 connection between the two nodes.
-It works by sending a small paket of type `ICMP echo request` packet and waits for a `ICMP echo reply`, which the *pinged* node should give under normal circumstances.
-In praxis there are sometimes firewalls blocking ICMP packets and also some systems might be configured to ignore echo request, but in our setups, it should be possible in most cases and we can use it to verify the connection.
+`ping` lets you send and receive small `ICMP` packets. `ICMP` is another layer 3 protocol, so we can test with that, if we have a layer 3 connection and therefore also a layer 2 connection between the two nodes.
+It works by sending a small packet of type `ICMP echo request` packet and waits for a `ICMP echo reply`, which the *pinged* node should give under normal circumstances.
+In practice there are sometimes firewalls blocking ICMP packets and also some systems might be configured to ignore echo request, but in our setups, it should be possible in most cases and we can use it to verify the connection.
 
-We also want to acutally *see* which packets are send between the nodes and therefore using `tcpdump`, which is a tool to analyse network traffic live.
+We also want to actually *see* which packets are send between the nodes and therefore using `tcpdump`, which is a tool to analyse network traffic live.
 During the different setups, we will learn different command line parameters of `tcpdump` and explain them on the fly. For now we are using `docker exec` to start `tcpdump` on both nodes as following:
 
 ```bash
@@ -201,7 +201,7 @@ PING 192.168.1.2 (192.168.1.2): 56 data bytes
 round-trip min/avg/max/stddev = 0.078/0.078/0.078/0.000 ms
 ```
 
-There is again a lot of interessting output, but for now we are only interessted in the information, that we send out a packet and also received a packet, so the ping, and therefore the layer 3 connection test was successful.
+There is again a lot of interesting output, but for now we are only interested in the information, that we send out a packet and also received a packet, so the ping, and therefore the layer 3 connection test was successful.
 
 Okay, lets take a look at the output of tcpdump on our `node1`:
 
@@ -244,7 +244,7 @@ To analyse this, lets take a look at the first 2 lines of our `tcpdump`:
 ```
 
 The first one is a packet send from the MAC address of our `node1` to the *Broadcast* MAC address, usually `ff:ff:ff:ff:ff:ff`, which is a packet for all nodes with a layer 2 connection to `node1` with the request `who-has 192.168.1.2 tell 192.168.1.1`.
-This means `node1` is asking with MAC address is assisiated with the IP address `192.168.1.1` and also automatically telling other nodes that `192.168.1.1` is assisiated with its own MAC address.
+This means `node1` is asking which MAC address is associated with the IP address `192.168.1.2` and also automatically telling other nodes that `192.168.1.1` is associated with its own MAC address.
 
-In our case the `node2` answers this request in the next line and tells `nodd1` that the IP address is assosiated with the MAC address of `node2`.
-So this way `node1` know where to send the layer 3 paket for the IPv4 Address of `node2`.
+In our case the `node2` answers this request in the next line and tells `node1` that the IP address is associated with the MAC address of `node2`.
+So this way `node1` knows where to send the layer 3 packet for the IPv4 Address of `node2`.

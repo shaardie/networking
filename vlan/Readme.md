@@ -1,4 +1,4 @@
-# Direct Connection
+# VLAN
 
 ```bash
 ❯ docker exec -it clab-vlan-node1 ip a

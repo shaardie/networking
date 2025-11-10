@@ -1,4 +1,4 @@
-# Direct Connection
+# VLAN Switch
 
 ```bash
 ```

@@ -1,4 +1,4 @@
-# Direct Connection
+# Switch
 
 ```bash
 ❯ docker exec -it clab-switch-switch ip address show

@@ -12,7 +12,7 @@ topology:
         - ./node1.sh:/run.sh
       # Run script on startup
       cmd: bash /run.sh
-    # Description of the first node
+    # Description of the second node
     node2:
       kind: linux
       # Image to use

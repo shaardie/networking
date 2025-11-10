@@ -1,4 +1,4 @@
-# Router
+# Internet Router
 
 ```bash
 ❯ docker exec -it clab-routing-node1 ip route
