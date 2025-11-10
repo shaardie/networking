@@ -2,7 +2,7 @@
 
 Networking can be challenging - even if you learned it at school or university.
 
-When I discovered the tool [CONTAINERlab](https://containerlab.dev/), which makes it easy to create complex networking environments inside containers, I wanted to start building some examples and explain how they work.
+When I discovered the tool [CONTAINERlab](https://containerlab.dev/), which makes it easy to create complex networking environments inside https://en.wikipedia.org/wiki/Ping_(networking_utility)containers, I wanted to start building some examples and explain how they work.
 
 I decided to use simple [Debian](https://www.debian.org/) containers as a base, rather than any fancy network operating system, so you can focus on learning the basics of Linux network configuration.
 

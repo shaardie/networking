@@ -4,7 +4,7 @@ The most basic kind of network communication is a direct connection between two 
 Since this is the first setup, I will use it to explain the setup and tooling a little bit more extensive.
 
 As already described in the [beginning](../Readme.md), we are using [CONTAINERlab](https://containerlab.dev/) to create our different network setups.
-The configuration is done via an YAML file, so lets take a look:
+The configuration is done via [`direct-connection.clab.yml`](./direct-connection.clab.yml), so lets take a look:
 
 ```yaml
 name: direct-connection
@@ -145,58 +145,106 @@ We see that our containers are running and that they got the names `clab-direct-
 
 Lets take a look at the configuration of the interfaces within the containers.
 For that we can again use the `ip` command.
-I will limit the output by using `-4` (only showing the IPv4 configuration) and `dev eth0` (only showing the configuration of the interface `eth0`) to keep it nice and clean, but most of the time, you are just using `ip a`, which is short for `ip address show` and ignore the output you are not interested in.
+I will limit the output by using `dev eth0` (only showing the configuration of the interface `eth0`) to keep it nice and clean, but most of the time, you are just using `ip a`, which is short for `ip address show` and ignore the output you are not interested in.
 
 ```bash
-sven in pacman in devel/networking/direct-connection on  main [!]
-at 10:19:57 ❯ docker exec clab-direct-connection-node1 ip -4 -c address show dev eth0
-14: eth0@if15: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 qdisc noqueue state UP group default  link-netnsid 0
+❯ docker exec -it clab-direct-connection-node1 ip address show dev eth0
+14: eth0@if15: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 qdisc noqueue state UP group default
+    link/ether aa:c1:ab:66:ba:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 192.168.1.1/24 scope global eth0
        valid_lft forever preferred_lft forever
+    inet6 fe80::a8c1:abff:fe66:ba02/64 scope link proto kernel_ll
+       valid_lft forever preferred_lft forever
 
-sven in pacman in devel/networking/direct-connection on  main [!]
-at 10:20:00 ❯ docker exec clab-direct-connection-node2 ip -4 -c address show dev eth0
-15: eth0@if14: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 qdisc noqueue state UP group default  link-netnsid 1
+❯ docker exec -it clab-direct-connection-node2 ip address show dev eth0
+15: eth0@if14: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 qdisc noqueue state UP group default
+    link/ether aa:c1:ab:4d:39:a7 brd ff:ff:ff:ff:ff:ff link-netnsid 1
     inet 192.168.1.2/24 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a8c1:abff:fe4d:39a7/64 scope link proto kernel_ll
        valid_lft forever preferred_lft forever
 ```
 
 There are still a lot of information in this output, we currently do not need, so I will briefly describe them:
 
 * `eth0@if15`: This is the *name* of the interface. The `@if15` is there due to the virtualization we are using the set this up. I will always refer to it as `eth0` and you can ignore it for now.
-* `state UP`: This is the state of the interface, it will only accept packages, if it is `UP`.
-* `inet 192.168.1.1/24`: This is an IPv4 address with netmask attached to this interface. We can see that our configuration script has done what it was supposed to be.
+* `state UP`: This is the *state* of the interface, it will only accept packages, if it is `UP`.
+* `inet 192.168.1.1/24`: This is an *IPv4 address with netmask* attached to this interface. We can see that our configuration script has done what it was supposed to be.
+* `link/ether aa:c1:ab:4d:39:a7 `: This is the *MAC address* of the interface.
 
-!TODO
+Okay, so now we have in theory a connection between the two nodes, how can we test it?
 
+For this, we are using [`ping`](https://en.wikipedia.org/wiki/Ping_(networking_utility)) and [`tcpdump`](https://www.tcpdump.org/).
 
-It does not really get more basic than a direct connection between to machines.
-So this is our starting point.
+`ping` lets you send and receive small `ICMP` pakets. `ICMP` is another layer 3 protocol, so we can test with that, if we have a layer 3 connection and therefore also a layer 2 connection between the two nodes.
+It works by sending a small paket of type `ICMP echo request` packet and waits for a `ICMP echo reply`, which the *pinged* node should give under normal circumstances.
+In praxis there are sometimes firewalls blocking ICMP packets and also some systems might be configured to ignore echo request, but in our setups, it should be possible in most cases and we can use it to verify the connection.
+
+We also want to acutally *see* which packets are send between the nodes and therefore using `tcpdump`, which is a tool to analyse network traffic live.
+During the different setups, we will learn different command line parameters of `tcpdump` and explain them on the fly. For now we are using `docker exec` to start `tcpdump` on both nodes as following:
 
 ```bash
-❯ docker exec clab-direct-connection-node1 ping -c 1 192.168.1.2
+❯ tcpdump -i eth0 -e not ip6
+```
+
+With this parameters `tcpdump` will listen on interface `eth0` for packets.
+`-e` lets us also see the layer 2 information and `not ip6` ignores all IPv6 traffic, because currently we are not interested in that.
+
+After the `tcpdump`s are running we use `ping` to send a single `ICMP echo request` from `node1` to the IPv4 address of `node2`:
+
+```bash
+❯ docker exec -it clab-direct-connection-node1 ping -c 1 192.168.1.2
 PING 192.168.1.2 (192.168.1.2): 56 data bytes
-64 bytes from 192.168.1.2: icmp_seq=0 ttl=64 time=0.087 ms
+64 bytes from 192.168.1.2: icmp_seq=0 ttl=64 time=0.078 ms
 --- 192.168.1.2 ping statistics ---
 1 packets transmitted, 1 packets received, 0% packet loss
-round-trip min/avg/max/stddev = 0.087/0.087/0.087/0.000 ms
-
-❯ docker exec clab-direct-connection-node1 ip neigh
-192.168.1.2 dev eth0 lladdr aa:c1:ab:af:62:4c STAL
-
-❯ docker exec -it clab-direct-connection-node1 tcpdump -i eth0
-tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
-listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-20:56:05.148583 ARP, Request who-has 192.168.1.2 tell 192.168.1.1, length 28
-20:56:05.148606 ARP, Reply 192.168.1.2 is-at aa:c1:ab:af:62:4c (oui Unknown), length 28
-20:56:05.148610 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 18, seq 0, length 64
-20:56:05.148625 IP 192.168.1.2 > 192.168.1.1: ICMP echo reply, id 18, seq 0, length 64
-
-❯ docker exec -it clab-direct-connection-node2 tcpdump -i eth0
-tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
-listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-20:56:05.148587 ARP, Request who-has 192.168.1.2 tell 192.168.1.1, length 28
-20:56:05.148605 ARP, Reply 192.168.1.2 is-at aa:c1:ab:af:62:4c (oui Unknown), length 28
-20:56:05.148611 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 18, seq 0, length 64
-20:56:05.148624 IP 192.168.1.2 > 192.168.1.1: ICMP echo reply, id 18, seq 0, length 64
+round-trip min/avg/max/stddev = 0.078/0.078/0.078/0.000 ms
 ```
+
+There is again a lot of interessting output, but for now we are only interessted in the information, that we send out a packet and also received a packet, so the ping, and therefore the layer 3 connection test was successful.
+
+Okay, lets take a look at the output of tcpdump on our `node1`:
+
+```bash
+❯ docker exec -it clab-direct-connection-node1 tcpdump -i eth0 -e not ip6
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+10:52:20.243705 aa:c1:ab:66:ba:02 (oui Unknown) > Broadcast, ethertype ARP (0x0806), length 42: Request who-has 192.168.1.2 tell 192.168.1.1, length 28
+10:52:20.243729 aa:c1:ab:4d:39:a7 (oui Unknown) > aa:c1:ab:66:ba:02 (oui Unknown), ethertype ARP (0x0806), length 42: Reply 192.168.1.2 is-at aa:c1:ab:4d:39:a7 (oui Unknown), length 28
+10:52:20.243731 aa:c1:ab:66:ba:02 (oui Unknown) > aa:c1:ab:4d:39:a7 (oui Unknown), ethertype IPv4 (0x0800), length 98: 192.168.1.1 > 192.168.1.2: ICMP echo request, id 36, seq 0, length 64
+10:52:20.243745 aa:c1:ab:4d:39:a7 (oui Unknown) > aa:c1:ab:66:ba:02 (oui Unknown), ethertype IPv4 (0x0800), length 98: 192.168.1.2 > 192.168.1.1: ICMP echo reply, id 36, seq 0, length 64
+```
+
+We will break this down slowly, but starting at the end. First we will take a look at the last two lines:
+
+```bash
+10:52:20.243731 aa:c1:ab:66:ba:02 (oui Unknown) > aa:c1:ab:4d:39:a7 (oui Unknown), ethertype IPv4 (0x0800), length 98: 192.168.1.1 > 192.168.1.2: ICMP echo request, id 36, seq 0, length 64
+10:52:20.243745 aa:c1:ab:4d:39:a7 (oui Unknown) > aa:c1:ab:66:ba:02 (oui Unknown), ethertype IPv4 (0x0800), length 98: 192.168.1.2 > 192.168.1.1: ICMP echo reply, id 36, seq 0, length 64
+```
+
+These two lines describe two packets.
+The first one was send from MAC address `aa:c1:ab:66:ba:02`, which is our `node1` to the MAC address `aa:c1:ab:4d:39:a7` which is our `node2`.
+And the second packet vice versa.
+So this is a direct layer 2 communication between our two nodes.
+
+But there is also some layer 3 information in there and we see that the first packet is an `ICMP echo request` from `192.168.1.1` (`node1`) to `192.168.1.2` (`node2`).
+And the second packet describe the answer.
+An `ICMP echo reply` from `192.168.1.2` (`node2`) to `192.168.1.1` (`node1`).
+
+So the two nodes can communicate with each other and we can even see how they are doing this, but an open question is still, how does the interface know to which MAC address to send packet for a specific IP?
+Or more specific: How does `node1` know that it needs to send packets for the `192.168.1.2` to the MAC address `aa:c1:ab:4d:39:a7`?
+
+Here a new layer 2 protocol comes into place, called [ARP](https://en.wikipedia.org/wiki/Address_Resolution_Protocol).
+With ARP we can send our request which MAC Address belongs to which IPv4 address.
+To analyse this, lets take a look at the first 2 lines of our `tcpdump`:
+
+```bash
+10:52:20.243705 aa:c1:ab:66:ba:02 (oui Unknown) > Broadcast, ethertype ARP (0x0806), length 42: Request who-has 192.168.1.2 tell 192.168.1.1, length 28
+10:52:20.243729 aa:c1:ab:4d:39:a7 (oui Unknown) > aa:c1:ab:66:ba:02 (oui Unknown), ethertype ARP (0x0806), length 42: Reply 192.168.1.2 is-at aa:c1:ab:4d:39:a7 (oui Unknown), length 28
+```
+
+The first one is a packet send from the MAC address of our `node1` to the *Broadcast* MAC address, usually `ff:ff:ff:ff:ff:ff`, which is a packet for all nodes with a layer 2 connection to `node1` with the request `who-has 192.168.1.2 tell 192.168.1.1`.
+This means `node1` is asking with MAC address is assisiated with the IP address `192.168.1.1` and also automatically telling other nodes that `192.168.1.1` is assisiated with its own MAC address.
+
+In our case the `node2` answers this request in the next line and tells `nodd1` that the IP address is assosiated with the MAC address of `node2`.
+So this way `node1` know where to send the layer 3 paket for the IPv4 Address of `node2`.
