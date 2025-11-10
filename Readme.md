@@ -125,8 +125,23 @@ Everything else is explained on the way.
 So now to the actual content: 
 
 * [Direct Connection](/direct-connection/Readme.md): The simplest of the setups. Just a direct connection between not nodes.
-* [Switch](/switch/Readme.md): Connecting different nodes with a switch.
-* [VLAN](/vlan/Readme.md): Direct connection between 2 nodes via VLAN.
-* [VLAN Switch](/vlan-switch/Readme.md): Connection between different nodes in different VLANs.
-* [Router](/router/Readme.md): A Router to route the traffic of different nodes in different networks.
-* [Internet Router](/internet-router/Readme.md): The Setup of an internet router, like the one you have at home.
+* Layer 2 Basics:
+  * [Switch](/switch/Readme.md): Connecting different nodes with a switch.
+  * [VLAN](/vlan/Readme.md): Direct connection between 2 nodes via VLAN.
+  * [VLAN Switch](/vlan-switch/Readme.md): Connection between different nodes in different VLANs.
+* Layer 3 Basics:
+  * [Router](/router/Readme.md): A Router to route the traffic of different nodes in different networks.
+  * [Internet Router](/internet-router/Readme.md): The Setup of an internet router, like the one you have at home.
+
+I would recommend to start with [Direct Connection](/direct-connection/Readme.md), because this will be the setups, I will explain the whole process in more detail than in the other setups.
+After that you do not have to read the setups in exactly this order, but there are some dependencies:
+
+```mermaid
+flowchart TD
+    direct_connection[Direct Connection] --> Switch
+    direct_connection --> VLAN
+    VLAN --> vlan_switch[VLAN Switch]
+    Switch --> vlan_switch
+    direct_connection --> Router
+    Router --> internet_router[Internet Router]
+```
