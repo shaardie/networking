@@ -68,7 +68,7 @@ They consist of 48 Bits and are nearly always represented by 12 hexadecimal numb
 So if we later take a look at communication between to nodes, we look at communication between two of those addresses.
 
 The *network layer* or *layer 3* is responsible for communication between different networks.
-So while layer 2 would be sufficient for the communication in a local network, layer 3 now adds the functionality to talk to nodes in other networks, behond other things.
+So while layer 2 would be sufficient for the communication in a local network, layer 3 now adds the functionality to talk to nodes in other networks, beyond other things.
 
 At this layer, nodes are identified by *IP addresses* instead of MAC addresses.
 These IP addresses are assigned to interfaces in your operating system and can be configured or changed at any time.
@@ -84,10 +84,41 @@ IPv4 addresses consist of 32 Bits and are nearly always represented as four numb
 
 But the address alone if not sufficient to describe the networks, because to split the whole address space into different networks, we need to know how big these networks are.
 
-For this we are using *netmask*, which describe how many IPv4 addresses are part of a network. There are 2 often used ways to do this. The first more often used one is via a *CIDR Prefix Length
+To describe to which ip address a network belongs most often the *CIDR* notation is used, which describes the size of the network by appending the number of fixed Bits as a *netmask*, like
 
-TODO! Finish this
+```
+192.168.1.1/24
+```
 
+This describes the IPv4 Address `192.168.1.1` as part of the network `192.168.1.0/24`, which consist of all ip addresses where the last entry of the addresse changed.
+
+There are more than one tutorial in the internet which describes how this is actually used to calculate the network, so I will not bother at this point.
+
+Practically speaking, I also never bother doing this by hand.
+There are some CIDR notation, I simply know, like:
+
+* `192.168.1.0/24` -> `192.168.1.1 - 192.168.1.255`
+* `192.168..0/16` -> `192.168.1.1 - 192.168.255.255`
+* `192.0.0.0/8` -> `192.168.1.1 - 192.255.255.255`
+
+and for everything else, I use command line tools like [ipcalc](https://jodies.de/ipcalc) or any of the endless ip calculators on the internet.
+With those you can calculate even odd mask pretty easily:
+
+```bash
+❯ ipcalc 192.168.1.1/23
+Address:   192.168.1.1          11000000.10101000.0000000 1.00000001
+Netmask:   255.255.254.0 = 23   11111111.11111111.1111111 0.00000000
+Wildcard:  0.0.1.255            00000000.00000000.0000000 1.11111111
+=>
+Network:   192.168.0.0/23       11000000.10101000.0000000 0.00000000
+HostMin:   192.168.0.1          11000000.10101000.0000000 0.00000001
+HostMax:   192.168.1.254        11000000.10101000.0000000 1.11111110
+Broadcast: 192.168.1.255        11000000.10101000.0000000 1.11111111
+Hosts/Net: 510
+```
+
+With this knowledge you should now be able to start with the setups.
+Everything else is explained on the way.
 
 ## Setups
 
