@@ -248,3 +248,9 @@ This means `node1` is asking which MAC address is associated with the IP address
 
 In our case the `node2` answers this request in the next line and tells `node1` that the IP address is associated with the MAC address of `node2`.
 So this way `node1` knows where to send the layer 3 packet for the IPv4 Address of `node2`.
+
+After finishing the analysis, we can tear down the whole setup again with 
+
+```bash
+❯ sudo containerlab destroy
+```

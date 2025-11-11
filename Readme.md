@@ -145,3 +145,10 @@ flowchart TD
     direct_connection --> Router
     Router --> internet_router[Internet Router]
 ```
+ 
+## Ideas
+
+* Bonding interfaces
+* STP
+* IPv6
+* LACP or something
