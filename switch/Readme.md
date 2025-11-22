@@ -1,11 +1,11 @@
 # Switch
 
 Most of the time, we want to have more than two nodes to communicate with each other in our layer 2 network.
-In this case we often connect all of our nodes to a single or multiple switches, which sends to packets to the correct node.
-But how does such a switch works?
+In this case we often connect all of our nodes to a single or multiple switches, which sends the packets to the correct node.
+But how does such a switch work?
 We will find that out in this setup by creating our own switch.
 
-So first lets take a look at our CONTAINERlab setup by taking a look at the [switch.clab.yml](./switch.clab.yml):
+So first let's take a look at our CONTAINERlab setup by taking a look at the [switch.clab.yml](./switch.clab.yml):
 
 ```yaml
 name: switch
@@ -53,16 +53,16 @@ topology:
     - endpoints: ["switch:eth3","node4:eth0"]
 ```
 
-We are creating four different nodes with an interface `eth0` each and connect all of them to another node called `switch` with to the interfaces `eth0` to `eth3`.
+We are creating four different nodes with an interface `eth0` each and connect all of them to another node called `switch` to the interfaces `eth0` to `eth3`.
 
-The setups for the different nodes are straight forward as they all simply get an IPv4 assigned and thats it:
+The setups for the different nodes are straight forward as they all simply get an IPv4 assigned and that's it:
 
 * [`node1`](./node1.sh) -> `192.168.1.1`
 * [`node2`](./node2.sh) -> `192.168.1.2`
 * [`node3`](./node3.sh) -> `192.168.1.3`
 * [`node4`](./node4.sh) -> `192.168.1.4`
 
-So the most interesting part is the configuration of the switch itself, so lets take a look at the [`switch.sh`](./switch.sh):
+So the most interesting part is the configuration of the switch itself, so let's take a look at the [`switch.sh`](./switch.sh):
 
 ```bash
 #!/bin/bash
@@ -101,8 +101,8 @@ sleep infinity
 
 In this config we are introducing a new concept.
 We are using the `ip` command to create a [Network Bridge](https://en.wikipedia.org/wiki/Network_bridge) within the switch node.
-Its a *virtual interface* which is able to forwards packets between multiple other interfaces.
-after that we set it as the master of all other interfaces on the switch which attach these interfaces to the bridge.
+It's a *virtual interface* which is able to forward packets between multiple other interfaces.
+After that, we set it as the master of all other interfaces on the switch which attach these interfaces to the bridge.
 So now the bridge is able to forward packets between the interfaces.
 After that we bring the bridge to an `UP` state, so that it is running.
 
@@ -138,9 +138,9 @@ After we again spin up the setup with `containerlab deploy`, we can look at the 
        valid_lft forever preferred_lft forever
 ```
 
-We see, that the create virtual bridge interface `br0` and we see `master br0` on the interfaces `eth0` - `eth3`, which indicates that these interfaces are attached to the bridge.
+We see that the created virtual bridge interface `br0` and we see `master br0` on the interfaces `eth0` - `eth3`, which indicates that these interfaces are attached to the bridge.
 
-Now, lets start `tcpdump` on all nodes, and check send a ping from `node1` to the IPv4 address attached to the interface of `node4`:
+Now, let's start `tcpdump` on all nodes, and send a ping from `node1` to the IPv4 address attached to the interface of `node4`:
 
 ```bash
 ❯ docker exec -it clab-switch-node1 ping -c 1 192.168.1.4
@@ -153,7 +153,7 @@ round-trip min/avg/max/stddev = 0.114/0.114/0.114/0.000 ms
 
 First of all, we see that we received and answer to our ping and therefor that the switch is working properly.
 
-Now lets take a look at the dumps from `node1` and `node4`:
+Now let's take a look at the dumps from `node1` and `node4`:
 
 ```bash
 ❯ docker exec -it clab-switch-node1 tcpdump -i eth0 -e not ip6
@@ -175,11 +175,11 @@ listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 
 They look exactly the same as in the setup of the [direct connection](/direct-connection/Readme.md).
 This is an interesting fact, because we see that a switch is completely transparent.
-For the two nodes it seems like their are directly connected with nothing in between.
+For the two nodes it seems like they are directly connected with nothing in between.
 
-And last, lets take a look at the `tcpdump` from the switch.
+And last, let's take a look at the `tcpdump` from the switch.
 We start multiple `tcpdump`s to see the exact traffic on each interface.
-There is also an `-i any` mode for `tcpdump`, but it does not show all packets, which is fine in a lot of cases, but still dont want to miss anything for this example.
+There is also an `-i any` mode for `tcpdump`, but it does not show all packets, which is fine in a lot of cases, but we still don't want to miss anything for this example.
 
 ```bash
 ❯ docker exec -it clab-switch-switch tcpdump -i eth0 -e not ip6
