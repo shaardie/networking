@@ -3,14 +3,14 @@ topology:
   nodes:
     node1:
       kind: linux
-      image: networking
+      image: ghcr.io/shaardie/networking:latest
       network-mode: none
       binds:
         - ./node1.sh:/run.sh
       cmd: bash /run.sh
     node2:
       kind: linux
-      image: networking
+      image: ghcr.io/shaardie/networking:latest
       network-mode: none
       binds:
         - ./node2.sh:/run.sh

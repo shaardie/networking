@@ -1,5 +1,72 @@
 # VLAN
 
+Sometimes we want to split our physical network into multiple parts, because we do not want all nodes to communicate with each other directly via Layer 2.
+Think for example, that you have your network with several IOT Devices, workstations and servers.
+Maybe IOT Devices should not *see* the workstations and the servers or you want to have hard firewall rules which workstation can see which service on which server and want all the traffic to not go directly between the workstations and the servers, but through your firewall.
+In this case you can either re-wire your physical connections that way or our can split your network on Layer 2 using [VLANs](https://en.wikipedia.org/wiki/VLAN) into multiple virtual networks.
+Traffic passing the underlying Layer 2 Network are getting *tagged* with a *VLAN ID*, usually a number between 1 and 4095 and you can filter the traffic on several points in your network based on this ID.
+
+The Linux network stack does already support VLAN and in this setup we take a setup similar to [Direct Connection](/direct-connection/Readme.md), but send traffic in multiple VLANs between the nodes.
+
+Just as a reminder once again the CONTAINERlab setup, we are using:
+
+```yaml
+name: vlan
+topology:
+  nodes:
+    node1:
+      kind: linux
+      image: ghcr.io/shaardie/networking:latest
+      network-mode: none
+      binds:
+        - ./node1.sh:/run.sh
+      cmd: bash /run.sh
+    node2:
+      kind: linux
+      image: ghcr.io/shaardie/networking:latest
+      network-mode: none
+      binds:
+        - ./node2.sh:/run.sh
+      cmd: bash /run.sh
+  links:
+    - endpoints: ["node1:eth0","node2:eth0"]
+```
+
+So our goal is now to have two different Layer 2 and Layer 3 connection between these to nodes. On with `VLAN 10` and the network `192.168.1.0/24` and one with `VLAN 20` and the network `192.168.2.0/24`.
+
+Let's take an exemplarily look at the setup for `node1`:
+
+```bash
+#!/bin/bash
+
+set -eux
+
+# wait for the setup to finish
+while ! ip link show dev eth0 &>/dev/null; do
+  sleep 0.1
+done
+
+# create virtual vlan 10 interface and set its ip address and activate it
+ip link add link eth0 name eth0.10 type vlan id 10
+ip link set eth0.10 up
+ip addr add 192.168.1.1/24 dev eth0.10
+
+# create virtual vlan 20 interface and set its ip address and activate it
+ip link add link eth0 name eth0.20 type vlan id 20
+ip link set eth0.20 up
+ip addr add 192.168.2.1/24 dev eth0.20
+
+# Keep container running
+sleep infinity
+```
+
+We create two *virtual interfaces* and assign them their VLAN ID.
+The name indicates the physical interface these virtual interfaces are attached to.
+So in this case they are both attached to `eth0`.
+
+The setup for `node2` is the same, but we assign the IP addresses `192.168.1.2` and `192.168.2.2`.
+
+
 ```bash
 ❯ docker exec -it clab-vlan-node1 ip a
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
