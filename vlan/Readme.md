@@ -1,14 +1,14 @@
 # VLAN
 
 Sometimes we want to split our physical network into multiple parts, because we do not want all nodes to communicate with each other directly via Layer 2.
-Think for example, that you have your network with several IOT Devices, workstations and servers.
-Maybe IOT Devices should not *see* the workstations and the servers or you want to have hard firewall rules which workstation can see which service on which server and want all the traffic to not go directly between the workstations and the servers, but through your firewall.
-In this case you can either re-wire your physical connections that way or our can split your network on Layer 2 using [VLANs](https://en.wikipedia.org/wiki/VLAN) into multiple virtual networks.
-Traffic passing the underlying Layer 2 Network are getting *tagged* with a *VLAN ID*, usually a number between 1 and 4095 and you can filter the traffic on several points in your network based on this ID.
+Think, for example, that you have a network with several IoT devices, workstations, and servers.
+Maybe the IoT devices should not *see* the workstations and the servers, or you want to have strict firewall rules that control which workstations can access which services on which servers, ensuring all traffic passes through your firewall instead of flowing directly between workstations and servers.
+In this case you can either re-wire your physical connections that way or you can split your network on Layer 2 using [VLANs](https://en.wikipedia.org/wiki/VLAN) into multiple virtual networks.
+Traffic passing through the underlying Layer 2 network is *tagged* with a *VLAN ID*, usually a number between 1 and 4095, and you can filter the traffic at various points in your network based on this ID.
 
-The Linux network stack does already support VLAN and in this setup we take a setup similar to [Direct Connection](/direct-connection/Readme.md), but send traffic in multiple VLANs between the nodes.
+The Linux network stack already supports VLANs, and in this setup we create a configuration similar to [Direct Connection](/direct-connection/Readme.md), but send traffic in multiple VLANs between the nodes.
 
-Just as a reminder once again the CONTAINERlab setup, we are using:
+Just as a reminder, here is the CONTAINERlab setup we are using:
 
 ```yaml
 name: vlan
@@ -32,9 +32,9 @@ topology:
     - endpoints: ["node1:eth0","node2:eth0"]
 ```
 
-So our goal is now to have two different Layer 2 and Layer 3 connection between these to nodes. On with `VLAN 10` and the network `192.168.1.0/24` and one with `VLAN 20` and the network `192.168.2.0/24`.
+So our goal is now to have two different Layer 2 and Layer 3 connections between these two nodes. One with `VLAN 10` and the network `192.168.1.0/24` and one with `VLAN 20` and the network `192.168.2.0/24`.
 
-Let's take an exemplarily look at the setup for `node1`:
+Let's take a look at the setup for `node1` as an example:
 
 ```bash
 #!/bin/bash
@@ -61,7 +61,7 @@ sleep infinity
 ```
 
 We create two *virtual interfaces* and assign them their VLAN ID.
-The name indicates the physical interface these virtual interfaces are attached to.
+The name indicates which physical interface these virtual interfaces are attached to.
 So in this case they are both attached to `eth0`.
 
 The setup for `node2` is the same, but we assign the IP addresses `192.168.1.2` and `192.168.2.2`.
@@ -94,7 +94,7 @@ If we take a look at the setup of `node1`, we see the two new virtual interfaces
        valid_lft forever preferred_lft forever
 ```
 
-So let's send a ICMP packet from `node1` to `node2` via VLAN 10:
+So let's send an ICMP packet from `node1` to `node2` via VLAN 10:
 
 ```bash
 ❯ docker exec -it clab-vlan-node1 ping -c 1 192.168.1.2
@@ -105,7 +105,7 @@ PING 192.168.1.2 (192.168.1.2): 56 data bytes
 round-trip min/avg/max/stddev = 0.093/0.093/0.093/0.000 ms
 ```
 
-If we look at the traffic on the virtual interfaces, the VLAN is completely transparant and it look like the same as in [Direct Connection](../direct-connection/Readme.md):
+If we look at the traffic on the virtual interfaces, the VLAN is completely transparent and it looks the same as in [Direct Connection](../direct-connection/Readme.md):
 
 ```bash
 ❯ docker exec -it clab-vlan-node1 tcpdump -i eth0.10 -e not ip6
@@ -125,7 +125,7 @@ listening on eth0.10, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 18:27:25.319258 aa:c1:ab:ae:71:fd (oui Unknown) > aa:c1:ab:65:92:cf (oui Unknown), ethertype IPv4 (0x0800), length 98: 192.168.1.2 > 192.168.1.1: ICMP echo reply, id 35, seq 0, length 64
 ```
 
-But if we take a look at the traffic on the `eth0` interfaces, we can see, that the VLAN ID is attached to the layer 2 information of the packets:
+But if we take a look at the traffic on the `eth0` interfaces, we can see that the VLAN ID is attached to the Layer 2 information of the packets:
 
 ```bash
 ❯ docker exec -it clab-vlan-node1 tcpdump -i eth0 -e not ip6
